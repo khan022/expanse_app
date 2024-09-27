@@ -7,6 +7,7 @@ ENV/
 env.bak/
 venv.bak/
 kivy_venv/
-expanses.db
+expenses.db
+__pycache__/
 
 
