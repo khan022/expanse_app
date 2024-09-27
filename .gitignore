@@ -7,6 +7,6 @@ ENV/
 env.bak/
 venv.bak/
 kivy_venv/
-.expanses.db
+expanses.db
 
 
