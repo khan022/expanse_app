@@ -9,5 +9,6 @@ venv.bak/
 kivy_venv/
 expenses.db
 __pycache__/
-
+Expense app.zip
+Expense app/
 
