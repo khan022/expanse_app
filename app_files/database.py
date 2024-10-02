@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DATABASE_FILE = '../config/expenses.db'
+DATABASE_FILE = '../config/expense.db'
 
 def create_db():
     """ Create the database and expenses table if it doesn't exist. """
@@ -13,8 +13,8 @@ def create_db():
             date TEXT NOT NULL,
             person TEXT NOT NULL,
             place TEXT NOT NULL,
-            amount REAL NOT NULL,
-            balance REAL NOT NULL,
+            amount INTEGER NOT NULL,
+            balance INTEGER NOT NULL,
             reason TEXT
         )
     ''')
@@ -63,15 +63,13 @@ def initialize_database():
 
 
 def get_last_ten_expenses():
-    """ Retrieve the last 10 expenses from the database. """
-    conn = sqlite3.connect(DATABASE_FILE)
+    conn = sqlite3.connect(DATABASE_FILE)  # Ensure path to db is correct
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT date, person, place, amount, reason
-        FROM expenses
-        ORDER BY id DESC
-        LIMIT 10
-    ''')
-    rows = cursor.fetchall()
+    
+    # Query to retrieve the last ten expenses
+    cursor.execute("SELECT * FROM expenses ORDER BY date DESC LIMIT 10")
+    
+    expenses = cursor.fetchall()
     conn.close()
-    return rows
+    
+    return expenses
