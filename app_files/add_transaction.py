@@ -4,11 +4,12 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
-from kivy.properties import StringProperty
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import Screen
-from database import get_all_balances, get_unique_places, get_last_balance_for_place, add_new_place  # Ensure this function is defined in your database module
-
+from kivy.uix.modalview import ModalView
+from kivy.properties import StringProperty
+from datetime import datetime
+from database import get_all_balances, get_unique_places, add_expense
 
 class AddTransactionScreen(Screen):
     def __init__(self, app, **kwargs):
@@ -17,13 +18,12 @@ class AddTransactionScreen(Screen):
         self.layout = AddTransactionLayout(app)
         self.add_widget(self.layout)
 
-
 class AddTransactionLayout(BoxLayout):
     date = StringProperty('')
     person = StringProperty('')
     place = StringProperty('')
     amount = StringProperty('')
-    balance = StringProperty('')
+    balance = StringProperty('')  # Balance is now StringProperty
     reason = StringProperty('')
 
     def __init__(self, app, **kwargs):
@@ -33,100 +33,116 @@ class AddTransactionLayout(BoxLayout):
         self.add_widgets()
 
     def add_widgets(self):
-        # Create a GridLayout for better organization
         grid = GridLayout(cols=2, padding=10, spacing=10)
 
-        # Labels and Text Inputs
         grid.add_widget(Label(text='Date:'))
-        self.date_input = TextInput(multiline=False)
-        grid.add_widget(self.date_input)
+        self.date_button = Button(text="Select Date", on_press=self.show_date_picker)
+        grid.add_widget(self.date_button)
 
         grid.add_widget(Label(text='Person:'))
         self.person_input = TextInput(multiline=False)
         grid.add_widget(self.person_input)
 
         grid.add_widget(Label(text='Place:'))
-
-        # Place Spinner with last balance display
         self.place_spinner = Spinner(
-            text='Select Place',
-            values=get_unique_places(),  # Assuming you have a function to retrieve unique places
-            size_hint=(1, None),  # Allow the spinner to stretch
-            height=44  # Set a height for better visibility
+            text="Select Place",
+            values=get_unique_places() + ["Add New Place"],
+            size_hint=(1, None)
         )
-        self.place_spinner.bind(text=self.update_balance)  # Update balance when a place is selected
+        self.place_spinner.bind(text=self.on_place_selected)
         grid.add_widget(self.place_spinner)
-
-        # Button to add a new place
-        self.new_place_input = TextInput(hint_text='Add New Place', multiline=False)
-        grid.add_widget(self.new_place_input)
-
-        add_place_button = Button(text='Add Place', size_hint=(1, None), height=44)
-        add_place_button.bind(on_press=self.add_place)
-        grid.add_widget(add_place_button)
-
-        grid.add_widget(Label(text='Last Balance:'))
-        self.balance_label = Label(text='')  # Label to display the last balance
-        grid.add_widget(self.balance_label)
 
         grid.add_widget(Label(text='Amount:'))
         self.amount_input = TextInput(multiline=False)
         grid.add_widget(self.amount_input)
 
+        grid.add_widget(Label(text='Balance:'))
+        self.balance_spinner = Spinner(
+            text='Select Balance',
+            values=[str(bal[1]) for bal in get_all_balances()]  # Get balances as strings
+        )
+        grid.add_widget(self.balance_spinner)
+
         grid.add_widget(Label(text='Reason:'))
         self.reason_input = TextInput(multiline=True)
         grid.add_widget(self.reason_input)
 
-        # Submit Button
         submit_button = Button(text='Add Transaction', size_hint=(1, 0.2))
         submit_button.bind(on_press=self.add_transaction)
         self.add_widget(grid)
         self.add_widget(submit_button)
 
-    def update_balance(self, spinner, text):
-        """Update the balance label based on the selected place."""
-        last_balance = get_last_balance_for_place(text)  # Fetch the last balance for the selected place
-        self.balance_label.text = f'Last Balance: {last_balance}'
+    def show_date_picker(self, instance):
+        date_popup = DatePicker(callback=self.on_date_selected)
+        date_popup.open()
 
-    def add_place(self, instance):
-        """Add a new place to the database and update the spinner."""
-        new_place = self.new_place_input.text.strip()
-        if new_place:
-            add_new_place(new_place)  # Function to add the new place to the database
-            self.place_spinner.values = get_unique_places()  # Refresh the spinner values
-            self.new_place_input.text = ''  # Clear the input
-            self.show_popup("Success", "New place added successfully!")
+    def on_date_selected(self, date_obj):
+        self.date_button.text = date_obj.strftime('%Y-%m-%d')
+        self.date = date_obj.strftime('%Y-%m-%d')
+
+    def on_place_selected(self, spinner, text):
+        if text == "Add New Place":
+            self.show_new_place_popup()
         else:
-            self.show_popup("Error", "Place name cannot be empty.")
+            # Update balance when a place is selected
+            self.update_balance_display(text)
+
+    def update_balance_display(self, selected_place):
+        balances = get_all_balances()
+        for place, balance in balances:
+            if place == selected_place:
+                self.balance_spinner.text = str(balance)  # Update the balance display
+                break
+
+    def show_new_place_popup(self):
+        content = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        label = Label(text="Enter New Place:")
+        new_place_input = TextInput(multiline=False)
+        submit_button = Button(text="Add Place", size_hint=(1, 0.2))
+
+        content.add_widget(label)
+        content.add_widget(new_place_input)
+        content.add_widget(submit_button)
+
+        popup = ModalView(size_hint=(0.75, 0.4))
+        popup.add_widget(content)
+
+        def add_place(instance):
+            new_place = new_place_input.text.strip()
+            if new_place:
+                self.place_spinner.values = list(self.place_spinner.values) + [new_place]
+                self.place_spinner.text = new_place
+            popup.dismiss()
+
+        submit_button.bind(on_press=add_place)
+        popup.open()
 
     def add_transaction(self, instance):
-        # Get values from inputs
-        self.date = self.date_input.text.strip()
         self.person = self.person_input.text.strip()
         self.place = self.place_spinner.text.strip()
         self.amount = self.amount_input.text.strip()
+        self.balance = self.balance_spinner.text.strip()
         self.reason = self.reason_input.text.strip()
 
-        # Validate input
         if not self.validate_inputs():
             return
 
-        # Call the app's add_expense method
         try:
-            self.app.add_expense(self.date, self.person, self.place, float(self.amount), self.balance_label.text.split(': ')[-1], self.reason)
+            self.app.add_expense(self.date, self.person, self.place, float(self.amount), float(self.balance), self.reason)
             self.show_popup("Success", "Transaction added successfully!")
             self.clear_inputs()
         except Exception as e:
             self.show_popup("Error", f"Failed to add transaction: {e}")
 
     def validate_inputs(self):
-        if not self.date or not self.person or not self.place or not self.amount or not self.reason:
+        if not self.date or not self.person or not self.place or not self.amount or not self.balance or not self.reason:
             self.show_popup("Error", "All fields must be filled.")
             return False
         try:
-            float(self.amount) 
+            float(self.amount)  # Check if amount is a valid float
+            float(self.balance)  # Check if balance is a valid float
         except ValueError:
-            self.show_popup("Error", "Amount must be a number.")
+            self.show_popup("Error", "Amount and Balance must be numbers.")
             return False
         return True
 
@@ -135,10 +151,54 @@ class AddTransactionLayout(BoxLayout):
         popup.open()
 
     def clear_inputs(self):
-        self.date_input.text = ''
+        self.date_button.text = "Select Date"
         self.person_input.text = ''
         self.place_spinner.text = 'Select Place'
         self.amount_input.text = ''
-        self.balance_label.text = '' 
+        self.balance_spinner.text = 'Select Balance'
         self.reason_input.text = ''
-        self.new_place_input.text = '' 
+
+class DatePicker(Popup):
+    def __init__(self, callback, **kwargs):
+        super(DatePicker, self).__init__(**kwargs)
+        self.title = "Select Date"
+        self.size_hint = (0.8, 0.8)
+        self.callback = callback
+
+        self.content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        today = datetime.today()
+        self.selected_date = today
+
+        self.year_input = TextInput(text=str(today.year), multiline=False, halign="center", font_size=24)
+        self.content.add_widget(Label(text="Year"))
+        self.content.add_widget(self.year_input)
+
+        self.month_input = TextInput(text=str(today.month), multiline=False, halign="center", font_size=24)
+        self.content.add_widget(Label(text="Month"))
+        self.content.add_widget(self.month_input)
+
+        self.day_input = TextInput(text=str(today.day), multiline=False, halign="center", font_size=24)
+        self.content.add_widget(Label(text="Day"))
+        self.content.add_widget(self.day_input)
+
+        submit_button = Button(text="Set Date", on_press=self.set_date)
+        self.content.add_widget(submit_button)
+
+    def set_date(self, instance):
+        try:
+            year = int(self.year_input.text)
+            month = int(self.month_input.text)
+            day = int(self.day_input.text)
+
+            selected_date = datetime(year, month, day)
+            self.selected_date = selected_date
+            self.callback(selected_date)
+            self.dismiss()
+        except ValueError:
+            error_popup = Popup(
+                title="Invalid Date",
+                content=Label(text="Please enter a valid date."),
+                size_hint=(0.6, 0.3)
+            )
+            error_popup.open()

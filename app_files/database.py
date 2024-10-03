@@ -33,6 +33,7 @@ def add_expense(date, person, place, amount, balance, reason=None):
 def get_all_balances():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
+    
     cursor.execute('''SELECT place, balance
                       FROM (
                           SELECT e.place, e.balance, e.id,
@@ -42,22 +43,35 @@ def get_all_balances():
                       WHERE rn = 1''')
 
     balances = cursor.fetchall()
-    total_balance = sum([balance for _, balance in balances])
-    balances.append(('Total', total_balance))
+    
+    cleaned_balances = []
+    for place, balance in balances:
+        if place == "RS":
+            cleaned_balance = 0.0
+        else:
+            try:
+                cleaned_balance = float(balance)
+            except ValueError:
+                print(f"Skipping invalid balance for {place}: {balance}")
+                cleaned_balance = 0.0
+        
+        cleaned_balances.append((place, cleaned_balance))
+    
+    total_balance = sum(balance for _, balance in cleaned_balances)
+    cleaned_balances.append(('Total', total_balance))
     conn.close()
-    return balances
+    return cleaned_balances
+
 
 def get_unique_places():
-    """ Retrieve a list of unique places from the expenses table. """
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     cursor.execute("SELECT DISTINCT place FROM expenses")
-    places = [place[0] for place in cursor.fetchall()]  # Fetch unique places
+    places = [place[0] for place in cursor.fetchall()] 
     conn.close()
     return places
 
 def get_last_balance_for_place(place):
-    """ Get the last balance for a specific place. """
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     cursor.execute('''SELECT balance FROM expenses
@@ -66,7 +80,7 @@ def get_last_balance_for_place(place):
                       LIMIT 1''', (place,))
     last_balance = cursor.fetchone()
     conn.close()
-    return last_balance[0] if last_balance else 0  # Return balance or 0 if no entry found
+    return last_balance[0] if last_balance else 0  
 
 def get_total_balance():
     conn = sqlite3.connect(DATABASE_FILE)
