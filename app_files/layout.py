@@ -9,6 +9,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
+from add_transaction import AddTransactionScreen 
 
 class MainLayout(FloatLayout):
     def __init__(self, app, **kwargs):
@@ -33,7 +34,7 @@ class MainLayout(FloatLayout):
         self.view_transactions_btn.bind(on_press=self.view_transactions)
         self.top_layout.add_widget(self.view_transactions_btn)
 
-        self.add_transactions_btn = Button(text='Add Transactions', font_size=25, size_hint_y=0.8, bold=True, background_color=[0, 0, 0, 0.6], padding=10)
+        self.add_transactions_btn = Button(text='Add Transactions', font_size=25, font_name="../fonts/EBGaramond-ExtraBold.ttf", size_hint_y=0.8, bold=True, background_color=[0, 0, 0, 0.6], padding=10)
         self.add_transactions_btn.bind(on_press=self.add_transactions)
         self.top_layout.add_widget(self.add_transactions_btn)
 
@@ -46,8 +47,8 @@ class MainLayout(FloatLayout):
         header_layout = GridLayout(cols=2, size_hint_y=None, height=50, padding=[10, 10], spacing=10)
 
         # Header labels with fixed size
-        header_place = Label(text='Place', bold=True, font_size=32, size_hint_y=None, height=50, color=[1, 1, 1, 1])
-        header_balance = Label(text='Balance', bold=True, font_size=32, size_hint_y=None, height=50, color=[1, 1, 1, 1])
+        header_place = Label(text='Place', bold=True, font_size=30, font_name = '../fonts/DancingScript-Regular.ttf', size_hint_y=None, height=50, color=[1, 1, 1, 1])
+        header_balance = Label(text='Balance', bold=True, font_size=30, font_name = '../fonts/DancingScript-Regular.ttf', size_hint_y=None, height=50, color=[1, 1, 1, 1])
 
         # Add background for header
         self.add_background(header_place)
@@ -71,12 +72,16 @@ class MainLayout(FloatLayout):
         balances = self.app.get_balances()
         if balances:
             for balance_data in balances:
-                place = balance_data[0]  # Assuming it's the place column
-                balance = balance_data[1]  # Assuming it's the balance column
+                place = balance_data[0]  
+                balance = balance_data[1]  
 
-                # Row labels with fixed size (height = 50)
-                place_label = Label(text=place, font_size=28, size_hint_y=None, height=50, color=[1, 1, 1, 1])
-                balance_label = Label(text=str(balance), font_size=28, size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                if place == 'Total':
+                    place_label = Label(text=place, font_size=30, font_name ='../fonts/EBGaramond-Italic-VariableFont_wght.ttf', size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                    balance_label = Label(text=str(balance), font_size=28, font_name ='../fonts/EBGaramond-Italic-VariableFont_wght.ttf', size_hint_y=None, height=50, color=[1, 1, 1, 1])
+
+                else:
+                    place_label = Label(text=place, font_size=28, font_name ='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                    balance_label = Label(text=str(balance), font_size=28, font_name ='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=50, color=[1, 1, 1, 1])
 
                 # Add background for each row
                 self.add_background(place_label)
@@ -93,7 +98,7 @@ class MainLayout(FloatLayout):
     def add_background(self, widget):
         """ Add a semi-transparent background to the widget. """
         with widget.canvas.before:
-            Color(0, 0, 0, 0.6)  # Black background with 60% opacity
+            Color(0, 0, 0, 0.865)  # Black background with 60% opacity
             widget.rect = Rectangle(size=widget.size, pos=widget.pos)
             widget.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -102,13 +107,9 @@ class MainLayout(FloatLayout):
         instance.rect.size = instance.size
 
     def view_transactions(self, instance):
-        """ Navigate to the ViewTransactionsLayout. """
-        # Switch to the transactions screen using ScreenManager
         self.app.screen_manager.current = 'transactions'
 
     def add_transactions(self, instance):
-        # Logic for adding a new transaction
-        popup = Popup(title='Add Transaction',
-                      content=Label(text='Add transaction form will be here...'),
-                      size_hint=(None, None), size=(400, 400))
-        popup.open()
+        add_transaction_screen = AddTransactionScreen(app=self.app)  
+        self.app.screen_manager.add_widget(add_transaction_screen)
+        self.app.screen_manager.current = 'add_transaction' 

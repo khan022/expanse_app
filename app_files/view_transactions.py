@@ -20,32 +20,41 @@ class ViewTransactionsLayout(FloatLayout):
         top_padding = FloatLayout(size_hint=(1, 0.1))  # This will act as padding
         self.add_widget(top_padding)
 
-        # Create a ScrollView to display transactions
-        scroll_view = ScrollView(size_hint=(1, 0.8), pos_hint={'x': 0, 'y': 0})
+        # Create a non-scrollable layout for the headers
+        header_layout = GridLayout(cols=5, size_hint=(1, 0.1), pos_hint={'top': 0.9}, padding=[10, 10], spacing=10)
+
+        # Create headers
+        headers = ['Date', 'Person', 'Place', 'Amount', 'Reason']
+        for header in headers:
+            header_label = Label(text=header, font_size=20, font_name='../fonts/Cambo-Regular.ttf', bold=True, size_hint_y=None, height=40, color=[1, 1, 1, 1])
+            self.add_background(header_label)
+            header_layout.add_widget(header_label)
+
+        # Add the header layout as a fixed (non-scrollable) element
+        self.add_widget(header_layout)
+
+        # Create a ScrollView to display the transactions
+        scroll_view = ScrollView(size_hint=(1, 0.7), pos_hint={'x': 0, 'y': 0.1})
         grid_layout = GridLayout(cols=5, size_hint_y=None, padding=[10, 10], spacing=10)
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
 
         # Fetch last 10 expenses
         last_ten_expenses = self.app.get_last_ten_expenses()
-        print(last_ten_expenses)
+        places = self.app.get_unique_places()
 
-        # Create headers
-        headers = ['Date', 'Person', 'Place', 'Amount', 'Reason']
-        for header in headers:
-            header_label = Label(text=header, bold=True, size_hint_y=None, height=40, color=[1, 1, 1, 1])
-            self.add_background(header_label)
-            grid_layout.add_widget(header_label)
+        print(places)
 
         # Populate the table with data
         if last_ten_expenses:
             for expense in last_ten_expenses:
-                # Ensure the tuple has at least 6 elements
                 if len(expense) >= 6:
-                    date_label = Label(text=expense[1], size_hint_y=None, height=40, color=[1, 1, 1, 1])  # 'date'
-                    person_label = Label(text=expense[2], size_hint_y=None, height=40, color=[1, 1, 1, 1])  # 'person'
-                    place_label = Label(text=expense[3], size_hint_y=None, height=40, color=[1, 1, 1, 1])  # 'place'
-                    amount_label = Label(text=str(expense[4]), size_hint_y=None, height=40, color=[1, 1, 1, 1])  # 'amount'
-                    reason_label = Label(text=expense[6], size_hint_y=None, height=40, color=[1, 1, 1, 1])  # 'reason'
+                    date_label = Label(text=expense[1], font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1]) 
+                    person_label = Label(text=expense[2], font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1]) 
+                    place_label = Label(text=expense[3], font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1])  
+                    amount_label = Label(text=str(expense[4]), font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1]) 
+                    reason_label = Label(text=expense[6], font_size=15, font_name='../fonts/Cambo-Regular.ttf', 
+                                    size_hint_y=None, height=40, size_hint_x=None, width=150, color=[1, 1, 1, 1],
+                                    text_size=(150, None), halign='center', valign='middle')
 
                     self.add_background(date_label)
                     self.add_background(person_label)
@@ -58,21 +67,18 @@ class ViewTransactionsLayout(FloatLayout):
                     grid_layout.add_widget(place_label)
                     grid_layout.add_widget(amount_label)
                     grid_layout.add_widget(reason_label)
-                else:
-                    print(f"Skipping expense: {expense} (not enough fields)")
 
         scroll_view.add_widget(grid_layout)
         self.add_widget(scroll_view)
 
-        # Back button to return to the main screen
-        back_button = Button(text='Back', size_hint=(0.1, 0.1), pos_hint={'right': 1, 'top': 1})
+        back_button = Button(text='⬇', size_hint=(0.1, 0.1), pos_hint={'center_x': 0.5, 'y': 0},
+                                    background_normal='', background_color=[0, 0, 0, 0])
         back_button.bind(on_press=self.go_back)
         self.add_widget(back_button)
 
     def add_background(self, widget):
-        """ Add a semi-transparent background to the widget. """
         with widget.canvas.before:
-            Color(0, 0, 0, 0.6)  # Black background with 60% opacity
+            Color(0, 0, 0, 0.86) 
             widget.rect = Rectangle(size=widget.size, pos=widget.pos)
             widget.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -81,5 +87,4 @@ class ViewTransactionsLayout(FloatLayout):
         instance.rect.size = instance.size
 
     def go_back(self, instance):
-        """ Go back to the main screen. """
-        self.app.root.current = 'main'  # Navigate back to the main screen
+        self.app.root.current = 'main'

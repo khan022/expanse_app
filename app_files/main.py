@@ -1,9 +1,10 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
-from database import initialize_database, add_expense, get_all_balances, get_total_balance, get_last_ten_expenses
+from database import initialize_database, add_expense, get_all_balances, get_unique_places, get_total_balance, get_last_ten_expenses
 from layout import MainLayout
 from view_transactions import ViewTransactionsLayout
+from add_transaction import AddTransactionScreen  # Import the AddTransactionScreen
 
 class ExpenseApp(App):
     def build(self):
@@ -24,6 +25,11 @@ class ExpenseApp(App):
         transactions_screen = Screen(name='transactions')
         transactions_screen.add_widget(self.view_transactions_layout)
         self.screen_manager.add_widget(transactions_screen)
+
+        # Add Add Transaction Screen
+        self.add_transaction_screen = AddTransactionScreen(app=self)
+        self.add_transaction_screen.name = "add_transaction"  # Set the screen name
+        self.screen_manager.add_widget(self.add_transaction_screen)
 
         return self.screen_manager
 
@@ -46,6 +52,10 @@ class ExpenseApp(App):
     def get_last_ten_expenses(self):
         """ Retrieve the last ten expenses from the database. """
         return get_last_ten_expenses()
+    
+    def get_unique_places(self):
+        """ Retrieve the last ten expenses from the database. """
+        return get_unique_places()
 
 if __name__ == '__main__':
     ExpenseApp().run()
