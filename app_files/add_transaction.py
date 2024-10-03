@@ -128,7 +128,7 @@ class AddTransactionLayout(BoxLayout):
             return
 
         try:
-            self.app.add_expense(self.date, self.person, self.place, float(self.amount), float(self.balance), self.reason)
+            self.app.add_expense(self.date, self.person, self.place, float(self.amount), float(self.amount)+float(self.balance), self.reason)
             self.show_popup("Success", "Transaction added successfully!")
             self.clear_inputs()
         except Exception as e:

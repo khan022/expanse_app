@@ -46,14 +46,14 @@ def get_all_balances():
     
     cleaned_balances = []
     for place, balance in balances:
-        if place == "RS":
+        # if place == "RS":
+        #     cleaned_balance = 0.0
+        # else:
+        try:
+            cleaned_balance = float(balance)
+        except ValueError:
+            print(f"Skipping invalid balance for {place}: {balance}")
             cleaned_balance = 0.0
-        else:
-            try:
-                cleaned_balance = float(balance)
-            except ValueError:
-                print(f"Skipping invalid balance for {place}: {balance}")
-                cleaned_balance = 0.0
         
         cleaned_balances.append((place, cleaned_balance))
     
