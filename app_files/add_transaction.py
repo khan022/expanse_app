@@ -7,6 +7,8 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import Screen
 from kivy.uix.modalview import ModalView
+from kivy.uix.image import Image
+from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty
 from datetime import datetime
 from database import get_all_balances, get_unique_places, add_expense
@@ -30,20 +32,48 @@ class AddTransactionLayout(BoxLayout):
         super(AddTransactionLayout, self).__init__(**kwargs)
         self.app = app
         self.orientation = 'vertical'
+        
+        # Set the background image
+        with self.canvas.before:
+            Color(1, 1, 1, 1)  # Set background color
+            self.bg_image = Rectangle(source='../Expense app/possible_bg2.jpg', pos=self.pos, size=self.size)
+
+        self.bind(size=self._update_rect, pos=self._update_rect)
+
         self.add_widgets()
 
+    def _update_rect(self, *args):
+        self.bg_image.pos = self.pos
+        self.bg_image.size = self.size
+
     def add_widgets(self):
+        # Create a layout container for padding
+        layout_container = BoxLayout(
+            orientation='vertical', 
+            padding=[50, 50, 50, 50],  # Adjust padding values to increase spacing
+            size_hint=(0.8, 0.8),  # Set size_hint for smaller form in the center
+            pos_hint={'center_x': 0.5, 'center_y': 0.5}
+        )
+
         grid = GridLayout(cols=2, padding=10, spacing=10)
 
-        grid.add_widget(Label(text='Date:'))
+        # Create a semi-transparent background for the inputs
+        with layout_container.canvas.before:
+            Color(0, 0, 0, 0.5)  # Black color with 50% opacity
+            self.bg_rect = Rectangle(pos=layout_container.pos, size=layout_container.size)
+
+        layout_container.bind(size=self.update_bg_rect, pos=self.update_bg_rect)
+
+        # Add labels and inputs
+        grid.add_widget(Label(text='Date:', color=(1, 1, 1, 1)))  # White text
         self.date_button = Button(text="Select Date", on_press=self.show_date_picker)
         grid.add_widget(self.date_button)
 
-        grid.add_widget(Label(text='Person:'))
+        grid.add_widget(Label(text='Person:', color=(1, 1, 1, 1)))  # White text
         self.person_input = TextInput(multiline=False)
         grid.add_widget(self.person_input)
 
-        grid.add_widget(Label(text='Place:'))
+        grid.add_widget(Label(text='Place:', color=(1, 1, 1, 1)))  # White text
         self.place_spinner = Spinner(
             text="Select Place",
             values=get_unique_places() + ["Add New Place"],
@@ -52,25 +82,31 @@ class AddTransactionLayout(BoxLayout):
         self.place_spinner.bind(text=self.on_place_selected)
         grid.add_widget(self.place_spinner)
 
-        grid.add_widget(Label(text='Amount:'))
+        grid.add_widget(Label(text='Amount:', color=(1, 1, 1, 1)))  # White text
         self.amount_input = TextInput(multiline=False)
         grid.add_widget(self.amount_input)
 
-        grid.add_widget(Label(text='Balance:'))
+        grid.add_widget(Label(text='Balance:', color=(1, 1, 1, 1)))  # White text
         self.balance_spinner = Spinner(
             text='Select Balance',
             values=[str(bal[1]) for bal in get_all_balances()]  # Get balances as strings
         )
         grid.add_widget(self.balance_spinner)
 
-        grid.add_widget(Label(text='Reason:'))
+        grid.add_widget(Label(text='Reason:', color=(1, 1, 1, 1)))  # White text
         self.reason_input = TextInput(multiline=True)
         grid.add_widget(self.reason_input)
 
         submit_button = Button(text='Add Transaction', size_hint=(1, 0.2))
         submit_button.bind(on_press=self.add_transaction)
-        self.add_widget(grid)
-        self.add_widget(submit_button)
+
+        layout_container.add_widget(grid)
+        layout_container.add_widget(submit_button)
+        self.add_widget(layout_container)
+
+    def update_bg_rect(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
 
     def show_date_picker(self, instance):
         date_popup = DatePicker(callback=self.on_date_selected)
@@ -128,7 +164,7 @@ class AddTransactionLayout(BoxLayout):
             return
 
         try:
-            self.app.add_expense(self.date, self.person, self.place, float(self.amount), float(self.amount)+float(self.balance), self.reason)
+            self.app.add_expense(self.date, self.person, self.place, float(self.amount), float(self.amount) + float(self.balance), self.reason)
             self.show_popup("Success", "Transaction added successfully!")
             self.clear_inputs()
         except Exception as e:
