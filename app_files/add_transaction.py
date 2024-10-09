@@ -7,7 +7,6 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import Screen
 from kivy.uix.modalview import ModalView
-from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty
 from datetime import datetime
@@ -47,16 +46,15 @@ class AddTransactionLayout(BoxLayout):
         self.bg_image.size = self.size
 
     def add_widgets(self):
-        # Layout container with padding
         layout_container = BoxLayout(
             orientation='vertical',
-            padding=[50, 50, 50, 50],
-            size_hint=(0.8, 0.8),
+            padding=[35, 80, 35, 80],
+            size_hint=(0.8, 0.9), 
             pos_hint={'center_x': 0.5, 'center_y': 0.5}
         )
 
-        # Grid for fields
         grid = GridLayout(cols=2, padding=10, spacing=10)
+        grid.bind(minimum_height=grid.setter('height'))
 
         fields = [
             ("Date", self.create_date_widget()),
@@ -67,19 +65,29 @@ class AddTransactionLayout(BoxLayout):
             ("Reason", self.create_reason_input())
         ]
 
-        # Add fields with semi-transparent rectangles behind them
         for field_name, widget in fields:
-            label = Label(text=f'{field_name}:', font_size=25, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1])  # White text
+            label = Label(
+                text=f'{field_name}:',
+                font_size=20,
+                font_name='../fonts/Cambo-Regular.ttf',
+                size_hint_y=None,
+                height=40,  
+                color=[1, 1, 1, 1]  
+            )
             
             self.add_background(label)
             self.add_background(widget)
-            
+
             grid.add_widget(label)
             grid.add_widget(widget)
 
-        # Submit button
-        submit_button = Button(text='Add Transaction', size_hint=(1, 0.2))
+        submit_button = Button(text='Add Transaction',font_size=20,
+                                font_name='../fonts/Cambo-Regular.ttf', 
+                                size_hint=(1, 0.1))
         submit_button.bind(on_press=self.add_transaction)
+
+
+        grid.padding = [20, 20, 20, 80]
 
         layout_container.add_widget(grid)
         layout_container.add_widget(submit_button)
@@ -87,7 +95,7 @@ class AddTransactionLayout(BoxLayout):
 
     def add_background(self, widget):
         with widget.canvas.before:
-            Color(0, 0, 0, 0.6) 
+            Color(0, 0, 0, 0.8)
             widget.rect = Rectangle(size=widget.size, pos=widget.pos)
             widget.bind(size=self.update, pos=self.update)
 
@@ -95,36 +103,53 @@ class AddTransactionLayout(BoxLayout):
         instance.rect.pos = instance.pos
         instance.rect.size = instance.size
 
-    # Synchronize rectangle size and position
-    def update_rect(self, rect):
-        def _update(instance, value):
-            rect.pos = (instance.x - 10, instance.y - 20)  # Adjust y position for better alignment
-            rect.size = (self.width * 0.7, 40)  # Update size dynamically
-        return _update
-
     def create_text_input_widget(self):
-        self.person_input = TextInput(multiline=False)
-        background_color=(0, 0, 0, 1),  # Black background
-        foreground_color=(1, 1, 1, 1),  # White text
-        halign='center'
+        self.person_input = TextInput(
+            multiline=False,
+            background_normal='',  # Remove default background
+            background_color=(1, 1, 1, 0),  # White background with transparency
+            foreground_color=(0, 0, 0, 1),  # Black text color
+            halign='center',
+            padding_y=(10, 10),
+            size_hint_y=None,
+            height=40,
+            font_name='../fonts/Cambo-Regular.ttf',
+        )
         return self.person_input
 
     def create_reason_input(self):
-        self.reason_input = TextInput(multiline=True)
-        background_color=(0, 0, 0, 1),  # Black background
-        foreground_color=(1, 1, 1, 1),  # White text
-        halign='center'
+        self.reason_input = TextInput(
+            multiline=True,
+            background_normal='',  # Remove default background
+            background_color=(1, 1, 1, .8),  # White background with transparency
+            foreground_color=(1, 1, 1, 1),  # Black text color
+            halign='center',
+            padding_y=(10, 10),
+            size_hint_y=None,
+            height=80,  # Slightly taller for multiline input
+            font_name='../fonts/Cambo-Regular.ttf',
+        )
         return self.reason_input
 
     def create_date_widget(self):
-        self.date_button = Button(text="Select Date", on_press=self.show_date_picker)
+        self.date_button = Button(text="Select Date", font_size=20,
+                font_name='../fonts/Cambo-Regular.ttf', on_press=self.show_date_picker, 
+                size_hint_y=None, height=40, background_normal='',  
+                background_color=(1, 1, 1, 0.75),  
+                color=(0, 0, 0, 1))
         return self.date_button
 
     def create_place_spinner(self):
         self.place_spinner = Spinner(
             text="Select Place",
+            font_size=20,
+            font_name='../fonts/Cambo-Regular.ttf',
             values=get_unique_places() + ["Add New Place"],
-            size_hint=(1, None)
+            size_hint=(1, None),
+            height=40,
+            background_normal='',  
+            background_color=(1, 1, 1, 0.75),  
+            color=(0, 0, 0, 1)
         )
         self.place_spinner.bind(text=self.on_place_selected)
         return self.place_spinner
@@ -132,7 +157,14 @@ class AddTransactionLayout(BoxLayout):
     def create_balance_spinner(self):
         self.balance_spinner = Spinner(
             text='Select Balance',
-            values=[str(bal[1]) for bal in get_all_balances()]  # Get balances as strings
+            font_size=20,
+            font_name='../fonts/Cambo-Regular.ttf',
+            values=[str(bal[1]) for bal in get_all_balances()],  
+            size_hint=(1, None),
+            height=40,
+            background_normal='',  
+            background_color=(1, 1, 1, 0.75), 
+            color=(0, 0, 0, 1)  
         )
         return self.balance_spinner
 
@@ -202,8 +234,8 @@ class AddTransactionLayout(BoxLayout):
             self.show_popup("Error", "All fields must be filled.")
             return False
         try:
-            float(self.amount)  # Check if amount is a valid float
-            float(self.balance)  # Check if balance is a valid float
+            float(self.amount)  
+            float(self.balance) 
         except ValueError:
             self.show_popup("Error", "Amount and Balance must be numbers.")
             return False
@@ -225,7 +257,7 @@ class DatePicker(Popup):
     def __init__(self, callback, **kwargs):
         super(DatePicker, self).__init__(**kwargs)
         self.title = "Select Date"
-        self.size_hint = (0.8, 0.8)
+        self.size_hint = (0.5, 0.5)
         self.callback = callback
 
         self.content = BoxLayout(orientation='vertical', spacing=10, padding=10)
@@ -233,19 +265,19 @@ class DatePicker(Popup):
         today = datetime.today()
         self.selected_date = today
 
-        self.year_input = TextInput(text=str(today.year), multiline=False, halign="center", font_size=24)
+        self.year_input = TextInput(text=str(today.year), multiline=False, halign="center", font_size=24, size_hint_y=None, height=40)
         self.content.add_widget(Label(text="Year"))
         self.content.add_widget(self.year_input)
 
-        self.month_input = TextInput(text=str(today.month), multiline=False, halign="center", font_size=24)
+        self.month_input = TextInput(text=str(today.month), multiline=False, halign="center", font_size=24, size_hint_y=None, height=40)
         self.content.add_widget(Label(text="Month"))
         self.content.add_widget(self.month_input)
 
-        self.day_input = TextInput(text=str(today.day), multiline=False, halign="center", font_size=24)
+        self.day_input = TextInput(text=str(today.day), multiline=False, halign="center", font_size=24, size_hint_y=None, height=40)
         self.content.add_widget(Label(text="Day"))
         self.content.add_widget(self.day_input)
 
-        submit_button = Button(text="Set Date", on_press=self.set_date)
+        submit_button = Button(text="Set Date", on_press=self.set_date, size_hint_y=None, height=40)
         self.content.add_widget(submit_button)
 
     def set_date(self, instance):
