@@ -25,14 +25,14 @@ class AddTransactionLayout(BoxLayout):
     person = StringProperty('')
     place = StringProperty('')
     amount = StringProperty('')
-    balance = StringProperty('')  # Balance is now StringProperty
+    balance = StringProperty('')
     reason = StringProperty('')
 
     def __init__(self, app, **kwargs):
         super(AddTransactionLayout, self).__init__(**kwargs)
         self.app = app
         self.orientation = 'vertical'
-        
+
         # Set the background image
         with self.canvas.before:
             Color(1, 1, 1, 1)  # Set background color
@@ -47,56 +47,37 @@ class AddTransactionLayout(BoxLayout):
         self.bg_image.size = self.size
 
     def add_widgets(self):
-        # Create a layout container for padding
+        # Layout container with padding
         layout_container = BoxLayout(
-            orientation='vertical', 
-            padding=[50, 50, 50, 50],  # Adjust padding values to increase spacing
-            size_hint=(0.8, 0.8),  # Set size_hint for smaller form in the center
+            orientation='vertical',
+            padding=[50, 50, 50, 50],
+            size_hint=(0.8, 0.8),
             pos_hint={'center_x': 0.5, 'center_y': 0.5}
         )
 
+        # Grid for fields
         grid = GridLayout(cols=2, padding=10, spacing=10)
 
-        # Create a semi-transparent background for the inputs
-        with layout_container.canvas.before:
-            Color(0, 0, 0, 0.5)  # Black color with 50% opacity
-            self.bg_rect = Rectangle(pos=layout_container.pos, size=layout_container.size)
+        fields = [
+            ("Date", self.create_date_widget()),
+            ("Person", self.create_text_input_widget()),
+            ("Place", self.create_place_spinner()),
+            ("Amount", self.create_text_input_widget()),
+            ("Balance", self.create_balance_spinner()),
+            ("Reason", self.create_reason_input())
+        ]
 
-        layout_container.bind(size=self.update_bg_rect, pos=self.update_bg_rect)
+        # Add fields with semi-transparent rectangles behind them
+        for field_name, widget in fields:
+            label = Label(text=f'{field_name}:', font_size=25, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1])  # White text
+            
+            self.add_background(label)
+            self.add_background(widget)
+            
+            grid.add_widget(label)
+            grid.add_widget(widget)
 
-        # Add labels and inputs
-        grid.add_widget(Label(text='Date:', color=(1, 1, 1, 1)))  # White text
-        self.date_button = Button(text="Select Date", on_press=self.show_date_picker)
-        grid.add_widget(self.date_button)
-
-        grid.add_widget(Label(text='Person:', color=(1, 1, 1, 1)))  # White text
-        self.person_input = TextInput(multiline=False)
-        grid.add_widget(self.person_input)
-
-        grid.add_widget(Label(text='Place:', color=(1, 1, 1, 1)))  # White text
-        self.place_spinner = Spinner(
-            text="Select Place",
-            values=get_unique_places() + ["Add New Place"],
-            size_hint=(1, None)
-        )
-        self.place_spinner.bind(text=self.on_place_selected)
-        grid.add_widget(self.place_spinner)
-
-        grid.add_widget(Label(text='Amount:', color=(1, 1, 1, 1)))  # White text
-        self.amount_input = TextInput(multiline=False)
-        grid.add_widget(self.amount_input)
-
-        grid.add_widget(Label(text='Balance:', color=(1, 1, 1, 1)))  # White text
-        self.balance_spinner = Spinner(
-            text='Select Balance',
-            values=[str(bal[1]) for bal in get_all_balances()]  # Get balances as strings
-        )
-        grid.add_widget(self.balance_spinner)
-
-        grid.add_widget(Label(text='Reason:', color=(1, 1, 1, 1)))  # White text
-        self.reason_input = TextInput(multiline=True)
-        grid.add_widget(self.reason_input)
-
+        # Submit button
         submit_button = Button(text='Add Transaction', size_hint=(1, 0.2))
         submit_button.bind(on_press=self.add_transaction)
 
@@ -104,9 +85,56 @@ class AddTransactionLayout(BoxLayout):
         layout_container.add_widget(submit_button)
         self.add_widget(layout_container)
 
-    def update_bg_rect(self, *args):
-        self.bg_rect.pos = self.pos
-        self.bg_rect.size = self.size
+    def add_background(self, widget):
+        with widget.canvas.before:
+            Color(0, 0, 0, 0.6) 
+            widget.rect = Rectangle(size=widget.size, pos=widget.pos)
+            widget.bind(size=self.update, pos=self.update)
+
+    def update(self, instance, value):
+        instance.rect.pos = instance.pos
+        instance.rect.size = instance.size
+
+    # Synchronize rectangle size and position
+    def update_rect(self, rect):
+        def _update(instance, value):
+            rect.pos = (instance.x - 10, instance.y - 20)  # Adjust y position for better alignment
+            rect.size = (self.width * 0.7, 40)  # Update size dynamically
+        return _update
+
+    def create_text_input_widget(self):
+        self.person_input = TextInput(multiline=False)
+        background_color=(0, 0, 0, 1),  # Black background
+        foreground_color=(1, 1, 1, 1),  # White text
+        halign='center'
+        return self.person_input
+
+    def create_reason_input(self):
+        self.reason_input = TextInput(multiline=True)
+        background_color=(0, 0, 0, 1),  # Black background
+        foreground_color=(1, 1, 1, 1),  # White text
+        halign='center'
+        return self.reason_input
+
+    def create_date_widget(self):
+        self.date_button = Button(text="Select Date", on_press=self.show_date_picker)
+        return self.date_button
+
+    def create_place_spinner(self):
+        self.place_spinner = Spinner(
+            text="Select Place",
+            values=get_unique_places() + ["Add New Place"],
+            size_hint=(1, None)
+        )
+        self.place_spinner.bind(text=self.on_place_selected)
+        return self.place_spinner
+
+    def create_balance_spinner(self):
+        self.balance_spinner = Spinner(
+            text='Select Balance',
+            values=[str(bal[1]) for bal in get_all_balances()]  # Get balances as strings
+        )
+        return self.balance_spinner
 
     def show_date_picker(self, instance):
         date_popup = DatePicker(callback=self.on_date_selected)
@@ -120,14 +148,13 @@ class AddTransactionLayout(BoxLayout):
         if text == "Add New Place":
             self.show_new_place_popup()
         else:
-            # Update balance when a place is selected
             self.update_balance_display(text)
 
     def update_balance_display(self, selected_place):
         balances = get_all_balances()
         for place, balance in balances:
             if place == selected_place:
-                self.balance_spinner.text = str(balance)  # Update the balance display
+                self.balance_spinner.text = str(balance)
                 break
 
     def show_new_place_popup(self):
@@ -228,13 +255,12 @@ class DatePicker(Popup):
             day = int(self.day_input.text)
 
             selected_date = datetime(year, month, day)
-            self.selected_date = selected_date
             self.callback(selected_date)
             self.dismiss()
         except ValueError:
             error_popup = Popup(
                 title="Invalid Date",
                 content=Label(text="Please enter a valid date."),
-                size_hint=(0.6, 0.3)
+                size_hint=(0.6, 0.4)
             )
             error_popup.open()
