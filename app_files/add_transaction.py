@@ -32,9 +32,8 @@ class AddTransactionLayout(BoxLayout):
         self.app = app
         self.orientation = 'vertical'
 
-        # Set the background image
         with self.canvas.before:
-            Color(1, 1, 1, 1)  # Set background color
+            Color(1, 1, 1, 1) 
             self.bg_image = Rectangle(source='../Expense app/possible_bg2.jpg', pos=self.pos, size=self.size)
 
         self.bind(size=self._update_rect, pos=self._update_rect)
@@ -58,9 +57,9 @@ class AddTransactionLayout(BoxLayout):
 
         fields = [
             ("Date", self.create_date_widget()),
-            ("Person", self.create_text_input_widget()),
+            ("Person", self.create_text_input_widget('person_input')),
             ("Place", self.create_place_spinner()),
-            ("Amount", self.create_text_input_widget()),
+            ("Amount", self.create_text_input_widget('amount_input')),
             ("Balance", self.create_balance_spinner()),
             ("Reason", self.create_reason_input())
         ]
@@ -86,12 +85,20 @@ class AddTransactionLayout(BoxLayout):
                                 size_hint=(1, 0.1))
         submit_button.bind(on_press=self.add_transaction)
 
-
         grid.padding = [20, 20, 20, 80]
 
         layout_container.add_widget(grid)
         layout_container.add_widget(submit_button)
+
+        back_button = Button(text='⬇', size_hint=(0.1, 0.1), pos_hint={'center_x': 0.5, 'y': 0},
+                        background_normal='', background_color=[0, 0, 0, 0])
+        back_button.bind(on_press=self.go_back)
+        layout_container.add_widget(back_button)
+
         self.add_widget(layout_container)
+
+    def go_back(self, instance):
+        self.app.root.current = 'main'
 
     def add_background(self, widget):
         with widget.canvas.before:
@@ -103,30 +110,31 @@ class AddTransactionLayout(BoxLayout):
         instance.rect.pos = instance.pos
         instance.rect.size = instance.size
 
-    def create_text_input_widget(self):
-        self.person_input = TextInput(
+    def create_text_input_widget(self, attr_name):
+        text_input = TextInput(
             multiline=False,
-            background_normal='',  # Remove default background
-            background_color=(1, 1, 1, 0),  # White background with transparency
-            foreground_color=(0, 0, 0, 1),  # Black text color
+            background_normal='',  
+            background_color=(1, 1, 1, 0.8),  
+            foreground_color=(1, 1, 1, 1),  
             halign='center',
             padding_y=(10, 10),
             size_hint_y=None,
             height=40,
             font_name='../fonts/Cambo-Regular.ttf',
         )
-        return self.person_input
+        setattr(self, attr_name, text_input)  # Dynamically set the input widget attribute
+        return text_input
 
     def create_reason_input(self):
         self.reason_input = TextInput(
             multiline=True,
-            background_normal='',  # Remove default background
-            background_color=(1, 1, 1, .8),  # White background with transparency
-            foreground_color=(1, 1, 1, 1),  # Black text color
+            background_normal='',  
+            background_color=(1, 1, 1, 0.8),  
+            foreground_color=(1, 1, 1, 1),  
             halign='center',
             padding_y=(10, 10),
             size_hint_y=None,
-            height=80,  # Slightly taller for multiline input
+            height=80,  
             font_name='../fonts/Cambo-Regular.ttf',
         )
         return self.reason_input
@@ -252,6 +260,7 @@ class AddTransactionLayout(BoxLayout):
         self.amount_input.text = ''
         self.balance_spinner.text = 'Select Balance'
         self.reason_input.text = ''
+
 
 class DatePicker(Popup):
     def __init__(self, callback, **kwargs):

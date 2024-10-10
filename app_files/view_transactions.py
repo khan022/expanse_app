@@ -11,40 +11,32 @@ class ViewTransactionsLayout(FloatLayout):
         super(ViewTransactionsLayout, self).__init__(**kwargs)
         self.app = app
 
-        # Set up background image, stretching to cover the full layout
         with self.canvas.before:
             self.bg_image = Image(source='../Expense app/possible_bg2.jpg', allow_stretch=True, keep_ratio=False)
             self.add_widget(self.bg_image)
 
-        # Add some padding at the top of the layout
-        top_padding = FloatLayout(size_hint=(1, 0.1))  # This will act as padding
+        top_padding = FloatLayout(size_hint=(1, 0.1))  
         self.add_widget(top_padding)
 
-        # Create a non-scrollable layout for the headers
         header_layout = GridLayout(cols=5, size_hint=(1, 0.1), pos_hint={'top': 0.9}, padding=[10, 10], spacing=10)
 
-        # Create headers
         headers = ['Date', 'Person', 'Place', 'Amount', 'Reason']
         for header in headers:
             header_label = Label(text=header, font_size=20, font_name='../fonts/Cambo-Regular.ttf', bold=True, size_hint_y=None, height=40, color=[1, 1, 1, 1])
             self.add_background(header_label)
             header_layout.add_widget(header_label)
 
-        # Add the header layout as a fixed (non-scrollable) element
         self.add_widget(header_layout)
 
-        # Create a ScrollView to display the transactions
         scroll_view = ScrollView(size_hint=(1, 0.7), pos_hint={'x': 0, 'y': 0.1})
         grid_layout = GridLayout(cols=5, size_hint_y=None, padding=[10, 10], spacing=10)
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
 
-        # Fetch last 10 expenses
         last_ten_expenses = self.app.get_last_ten_expenses()
         places = self.app.get_unique_places()
 
         print(places)
 
-        # Populate the table with data
         if last_ten_expenses:
             for expense in last_ten_expenses:
                 if len(expense) >= 6:

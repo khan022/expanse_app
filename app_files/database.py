@@ -46,9 +46,6 @@ def get_all_balances():
     
     cleaned_balances = []
     for place, balance in balances:
-        # if place == "RS":
-        #     cleaned_balance = 0.0
-        # else:
         try:
             cleaned_balance = float(balance)
         except ValueError:
@@ -128,7 +125,7 @@ def add_new_place(place):
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO expenses (place, balance) VALUES (?, ?)
-    ''', (place, 0))  # You can set a default balance, if needed
+    ''', (place, 0)) 
     conn.commit()
     conn.close()
 
