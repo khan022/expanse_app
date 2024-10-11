@@ -34,10 +34,11 @@ class LoginLayout(BoxLayout):
         self.bg_image.size = self.size
 
     def add_widgets(self):
-        # Main layout for input fields
+        # Container for central layout
         layout_container = BoxLayout(
             orientation='vertical',
-            padding=[35, 80, 35, 80],
+            padding=[30, 40, 30, 40],
+            spacing=40,  # To adjust the gap between widgets
             size_hint=(0.8, 0.9), 
             pos_hint={'center_x': 0.5, 'center_y': 0.5}
         )
@@ -51,12 +52,18 @@ class LoginLayout(BoxLayout):
             foreground_color=(0, 0, 0, 1),
             halign='center',
             size_hint_y=None,
-            height=40,
+            height=50,
             font_name='../fonts/Cambo-Regular.ttf',
+            padding_y=(12, 12)  # For better vertical alignment
         )
-        layout_container.add_widget(Label(text='Email:', font_size=20, 
-                                    font_name='../fonts/Cambo-Regular.ttf'))
-        layout_container.add_widget(self.email_input)
+        email_label = Label(
+            text='Email:', 
+            font_size=20, 
+            font_name='../fonts/Cambo-Regular.ttf', 
+            color=(1, 1, 1, 1),
+            size_hint_y=None,
+            height=30
+        )
 
         # Password field
         self.password_input = TextInput(
@@ -66,25 +73,58 @@ class LoginLayout(BoxLayout):
             background_color=(1, 1, 1, 0.8),  
             foreground_color=(0, 0, 0, 1),
             halign='center',
-            password=True,  # Password masking
+            password=True,  
             size_hint_y=None,
-            height=40,
+            height=50,
             font_name='../fonts/Cambo-Regular.ttf',
+            padding_y=(12, 12)
         )
-        layout_container.add_widget(Label(text='Password:', font_size=20, 
-                                    font_name='../fonts/Cambo-Regular.ttf'))
-        layout_container.add_widget(self.password_input)
+        password_label = Label(
+            text='Password:', 
+            font_size=20, 
+            font_name='../fonts/Cambo-Regular.ttf', 
+            color=(1, 1, 1, 1),
+            size_hint_y=None,
+            height=30
+        )
 
         # Login button
-        login_button = Button(text='Login', font_size=20, font_name='../fonts/Cambo-Regular.ttf', 
-                                size_hint=(1, 0.1))
+        login_button = Button(
+            text='Login', 
+            font_size=20, 
+            font_name='../fonts/Cambo-Regular.ttf', 
+            background_color=(0.2, 0.6, 1, 1),
+            color=(1, 1, 1, 1),
+            size_hint=(1, 0.2),
+            height=10,
+            background_normal='',  # Remove default background
+            background_down=''  # Remove click background
+        )
         login_button.bind(on_press=self.login)
-        layout_container.add_widget(login_button)
 
         # Signup button
-        signup_button = Button(text='Sign Up', font_size=20, font_name='../fonts/Cambo-Regular.ttf', 
-                                size_hint=(1, 0.1))
+        signup_button = Button(
+            text='Sign Up', 
+            font_size=20, 
+            font_name='../fonts/Cambo-Regular.ttf', 
+            background_color=(0.8, 0.2, 0.2, 1),
+            color=(1, 1, 1, 1),
+            size_hint=(1, 0.2),
+            height=10,
+            background_normal='',  # Remove default background
+            background_down=''
+        )
         signup_button.bind(on_press=self.sign_up)
+
+        # layout_container.padding = [20, 20, 20, 80]
+
+        # Add widgets to the layout
+        layout_container.add_widget(email_label)
+        layout_container.add_widget(self.email_input)
+        layout_container.add_widget(password_label)
+        layout_container.add_widget(self.password_input)
+        # layout_container.add_widget(padding)
+        layout_container.add_widget(login_button)
         layout_container.add_widget(signup_button)
 
         self.add_widget(layout_container)
@@ -94,7 +134,6 @@ class LoginLayout(BoxLayout):
         password = self.password_input.text.strip()
 
         if self.validate_credentials(email, password):
-            # Credentials are valid, switch to the main app
             self.app.root.current = 'main'
         else:
             self.show_popup("Login Failed", "Invalid email or password. Please try again.")
