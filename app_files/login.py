@@ -23,24 +23,77 @@ class LoginLayout(BoxLayout):
 
         # Background setup
         with self.canvas.before:
-            Color(1, 1, 1, 1)
-            self.bg_image = Rectangle(source='../Expense app/possible_bg2.jpg', pos=self.pos, size=self.size)
+            Color(1, 1, 1, 1)  # White background
+            self.bg_image = Rectangle(source='../Expense app/possible_bg2.jpg', size=self.size)
+
         self.bind(size=self._update_rect, pos=self._update_rect)
 
         self.add_widgets()
 
     def _update_rect(self, *args):
+        # Update background rectangle to fit the layout
         self.bg_image.pos = self.pos
         self.bg_image.size = self.size
 
     def add_widgets(self):
-        # Container for central layout
+        # Container for the main layout
         layout_container = BoxLayout(
             orientation='vertical',
-            padding=[30, 40, 30, 40],
-            spacing=40,  # To adjust the gap between widgets
-            size_hint=(0.8, 0.9), 
+            padding=[30, 40, 30, 300],
+            spacing=40,
+            size_hint=(0.8, 0.9),
             pos_hint={'center_x': 0.5, 'center_y': 0.5}
+        )
+
+        # Two-column layout for email and password fields
+        field_container = BoxLayout(
+            orientation='horizontal',
+            spacing=20,
+            size_hint_y=None,
+            height=120
+        )
+
+        # Column 1: Labels with semi-transparent background
+        label_container = BoxLayout(
+            orientation='vertical',
+            spacing=20
+        )
+
+        email_label = Label(
+            text='Email:', 
+            font_size=20, 
+            font_name='../fonts/Cambo-Regular.ttf', 
+            color=(1, 1, 1, 1),
+            size_hint_y=None,
+            height=50,
+            padding=(10, 10),
+        )
+        # Semi-transparent background for email label
+        with email_label.canvas.before:
+            Color(0, 0, 0, 0.5)  # Semi-transparent black
+            self.bg_email = Rectangle(pos=email_label.pos, size=email_label.size)
+
+        password_label = Label(
+            text='Password:', 
+            font_size=20, 
+            font_name='../fonts/Cambo-Regular.ttf', 
+            color=(1, 1, 1, 1),
+            size_hint_y=None,
+            height=50,
+            padding=(10, 10),
+        )
+        # Semi-transparent background for password label
+        with password_label.canvas.before:
+            Color(0, 0, 0, 0.5)  # Semi-transparent black
+            self.bg_password = Rectangle(pos=password_label.pos, size=password_label.size)
+
+        label_container.add_widget(email_label)
+        label_container.add_widget(password_label)
+
+        # Column 2: Input fields
+        input_container = BoxLayout(
+            orientation='vertical',
+            spacing=20
         )
 
         # Email field
@@ -55,14 +108,6 @@ class LoginLayout(BoxLayout):
             height=50,
             font_name='../fonts/Cambo-Regular.ttf',
             padding_y=(12, 12)  # For better vertical alignment
-        )
-        email_label = Label(
-            text='Email:', 
-            font_size=20, 
-            font_name='../fonts/Cambo-Regular.ttf', 
-            color=(1, 1, 1, 1),
-            size_hint_y=None,
-            height=30
         )
 
         # Password field
@@ -79,13 +124,20 @@ class LoginLayout(BoxLayout):
             font_name='../fonts/Cambo-Regular.ttf',
             padding_y=(12, 12)
         )
-        password_label = Label(
-            text='Password:', 
-            font_size=20, 
-            font_name='../fonts/Cambo-Regular.ttf', 
-            color=(1, 1, 1, 1),
+
+        input_container.add_widget(self.email_input)
+        input_container.add_widget(self.password_input)
+
+        # Add label and input containers to field container
+        field_container.add_widget(label_container)
+        field_container.add_widget(input_container)
+
+        # Horizontal layout for buttons
+        button_container = BoxLayout(
+            orientation='horizontal',
+            spacing=10,
             size_hint_y=None,
-            height=30
+            height=50
         )
 
         # Login button
@@ -95,8 +147,8 @@ class LoginLayout(BoxLayout):
             font_name='../fonts/Cambo-Regular.ttf', 
             background_color=(0.2, 0.6, 1, 1),
             color=(1, 1, 1, 1),
-            size_hint=(1, 0.2),
-            height=10,
+            size_hint=(1, None),
+            height=50,
             background_normal='',  # Remove default background
             background_down=''  # Remove click background
         )
@@ -109,23 +161,20 @@ class LoginLayout(BoxLayout):
             font_name='../fonts/Cambo-Regular.ttf', 
             background_color=(0.8, 0.2, 0.2, 1),
             color=(1, 1, 1, 1),
-            size_hint=(1, 0.2),
-            height=10,
+            size_hint=(1, None),
+            height=50,
             background_normal='',  # Remove default background
             background_down=''
         )
         signup_button.bind(on_press=self.sign_up)
 
-        # layout_container.padding = [20, 20, 20, 80]
+        # Add buttons to button container
+        button_container.add_widget(login_button)
+        button_container.add_widget(signup_button)
 
-        # Add widgets to the layout
-        layout_container.add_widget(email_label)
-        layout_container.add_widget(self.email_input)
-        layout_container.add_widget(password_label)
-        layout_container.add_widget(self.password_input)
-        # layout_container.add_widget(padding)
-        layout_container.add_widget(login_button)
-        layout_container.add_widget(signup_button)
+        # Add field container and button container to the main layout
+        layout_container.add_widget(field_container)
+        layout_container.add_widget(button_container)
 
         self.add_widget(layout_container)
 
@@ -163,3 +212,4 @@ class LoginLayout(BoxLayout):
     def show_popup(self, title, message):
         popup = Popup(title=title, content=Label(text=message), size_hint=(0.8, 0.4))
         popup.open()
+

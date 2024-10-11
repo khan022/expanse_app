@@ -35,7 +35,7 @@ class ViewTransactionsLayout(FloatLayout):
         last_ten_expenses = self.app.get_last_ten_expenses()
         places = self.app.get_unique_places()
 
-        print(places)
+        # print(places)
 
         if last_ten_expenses:
             for expense in last_ten_expenses:
