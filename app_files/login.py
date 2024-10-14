@@ -59,6 +59,7 @@ class LoginLayout(BoxLayout):
             spacing=20
         )
 
+        # Email Label with semi-transparent background
         email_label = Label(
             text='Email:', 
             font_size=20, 
@@ -73,6 +74,11 @@ class LoginLayout(BoxLayout):
             Color(0, 0, 0, 0.5)  # Semi-transparent black
             self.bg_email = Rectangle(pos=email_label.pos, size=email_label.size)
 
+        # Bind position and size of rectangle to label's position and size
+        email_label.bind(pos=lambda instance, value: setattr(self.bg_email, 'pos', value))
+        email_label.bind(size=lambda instance, value: setattr(self.bg_email, 'size', value))
+
+        # Password Label with semi-transparent background
         password_label = Label(
             text='Password:', 
             font_size=20, 
@@ -86,6 +92,10 @@ class LoginLayout(BoxLayout):
         with password_label.canvas.before:
             Color(0, 0, 0, 0.5)  # Semi-transparent black
             self.bg_password = Rectangle(pos=password_label.pos, size=password_label.size)
+
+        # Bind position and size of rectangle to label's position and size
+        password_label.bind(pos=lambda instance, value: setattr(self.bg_password, 'pos', value))
+        password_label.bind(size=lambda instance, value: setattr(self.bg_password, 'size', value))
 
         label_container.add_widget(email_label)
         label_container.add_widget(password_label)
@@ -183,6 +193,7 @@ class LoginLayout(BoxLayout):
         password = self.password_input.text.strip()
 
         if self.validate_credentials(email, password):
+            self.clear_fields()
             self.app.root.current = 'main'
         else:
             self.show_popup("Login Failed", "Invalid email or password. Please try again.")
@@ -206,10 +217,28 @@ class LoginLayout(BoxLayout):
             with open(credentials_file, 'w') as f:
                 json.dump({'email': email, 'password': password}, f)
             self.show_popup("Sign Up Successful", "You can now log in with your credentials.")
+            self.clear_fields()
         else:
             self.show_popup("Sign Up Failed", "Please enter a valid email and password.")
 
+    def clear_fields(self):
+        # Clear email and password fields
+        self.email_input.text = ''
+        self.password_input.text = ''
+
     def show_popup(self, title, message):
-        popup = Popup(title=title, content=Label(text=message), size_hint=(0.8, 0.4))
+        popup_layout = BoxLayout(orientation='vertical', padding=10)
+        popup_label = Label(text=message)
+        dismiss_button = Button(
+            text='Dismiss', 
+            size_hint=(0.5, 0.2),  # Adjust the width
+            pos_hint={'center_x': 0.5}  # Center the button horizontally
+        )
+
+        popup_layout.add_widget(popup_label)
+        popup_layout.add_widget(dismiss_button)
+
+        popup = Popup(title=title, content=popup_layout, size_hint=(0.6, 0.4))
+        dismiss_button.bind(on_press=popup.dismiss)
         popup.open()
 

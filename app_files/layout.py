@@ -101,7 +101,14 @@ class MainLayout(FloatLayout):
         self.add_widget(layout)
 
         # Logout button at the bottom center
-        logout_button = Button(text='Logout', size_hint=(0.3, 0.1), pos_hint={'center_x': 0.5, 'y': 0})
+        logout_button = Button(
+                            text='Logout',
+                            size_hint=(0.3, 0.05), 
+                            pos_hint={'center_x': 0.5, 'y': 0},
+                            background_normal='',  # Ensures no default background is used
+                            background_color=(0.7, 0, 0, 0.8),  # Semi-transparent black (R, G, B, alpha)
+                            color=(1, 1, 1, 1)  # White text color (R, G, B, alpha)
+                        )
         logout_button.bind(on_press=self.logout)
         self.add_widget(logout_button)
 
