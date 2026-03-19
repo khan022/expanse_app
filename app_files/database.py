@@ -1,7 +1,6 @@
 import sqlite3
 import os
-
-DATABASE_FILE = '../config/expense.db'
+from paths import DATABASE_FILE
 
 def create_db():
     """ Create the database and expenses table if it doesn't exist. """
@@ -69,6 +68,7 @@ def get_unique_places():
     return places
 
 def get_last_balance_for_place(place):
+    """ Retrieve the last balance for a specific place. """
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     cursor.execute('''SELECT balance FROM expenses
@@ -102,23 +102,6 @@ def get_last_ten_expenses():
     
     return expenses
 
-
-def get_last_balance_for_place(place):
-    """ Retrieve the last balance for a specific place. """
-    conn = sqlite3.connect(DATABASE_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT balance
-        FROM expenses
-        WHERE place = ?
-        ORDER BY id DESC
-        LIMIT 1
-    ''', (place,))
-    last_balance = cursor.fetchone()
-    conn.close()
-    
-    return last_balance[0] if last_balance else 0 
-
 def add_new_place(place):
     """ Add a new place to the database. """
     conn = sqlite3.connect(DATABASE_FILE)
@@ -128,4 +111,3 @@ def add_new_place(place):
     ''', (place, 0)) 
     conn.commit()
     conn.close()
-

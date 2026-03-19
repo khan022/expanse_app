@@ -5,14 +5,16 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
+from paths import BG_APP_1, FONT_CAMBO
 
 class ViewTransactionsLayout(FloatLayout):
     def __init__(self, app, **kwargs):
         super(ViewTransactionsLayout, self).__init__(**kwargs)
         self.app = app
 
+        # Background - dark blue/purple gradient (same as main layout)
         with self.canvas.before:
-            self.bg_image = Image(source='../Expense app/possible_bg2.jpg', allow_stretch=True, keep_ratio=False)
+            self.bg_image = Image(source=BG_APP_1, allow_stretch=True, keep_ratio=False)
             self.add_widget(self.bg_image)
 
         top_padding = FloatLayout(size_hint=(1, 0.1))  
@@ -20,9 +22,14 @@ class ViewTransactionsLayout(FloatLayout):
 
         header_layout = GridLayout(cols=5, size_hint=(1, 0.1), pos_hint={'top': 0.9}, padding=[10, 10], spacing=10)
 
+        # Headers - bright cyan for contrast against dark blue bg
         headers = ['Date', 'Person', 'Place', 'Amount', 'Reason']
         for header in headers:
-            header_label = Label(text=header, font_size=20, font_name='../fonts/Cambo-Regular.ttf', bold=True, size_hint_y=None, height=40, color=[1, 1, 1, 1])
+            header_label = Label(
+                text=header, font_size=20, font_name=FONT_CAMBO, 
+                bold=True, size_hint_y=None, height=40, 
+                color=[0.3, 1, 0.9, 1]
+            )
             self.add_background(header_label)
             header_layout.add_widget(header_label)
 
@@ -35,17 +42,22 @@ class ViewTransactionsLayout(FloatLayout):
         last_ten_expenses = self.app.get_last_ten_expenses()
         places = self.app.get_unique_places()
 
-        # print(places)
-
         if last_ten_expenses:
             for expense in last_ten_expenses:
                 if len(expense) >= 6:
-                    date_label = Label(text=expense[1], font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1]) 
-                    person_label = Label(text=expense[2], font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1]) 
-                    place_label = Label(text=expense[3], font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1])  
-                    amount_label = Label(text=str(expense[4]), font_size=15, font_name='../fonts/Cambo-Regular.ttf', size_hint_y=None, height=40, color=[1, 1, 1, 1]) 
-                    reason_label = Label(text=expense[6], font_size=15, font_name='../fonts/Cambo-Regular.ttf', 
-                                    size_hint_y=None, height=40, size_hint_x=None, width=150, color=[1, 1, 1, 1],
+                    # Data rows - light blue/white for readability
+                    row_color = [0.85, 0.92, 1, 1]
+                    date_label = Label(text=expense[1], font_size=15, font_name=FONT_CAMBO, 
+                                      size_hint_y=None, height=40, color=row_color) 
+                    person_label = Label(text=expense[2], font_size=15, font_name=FONT_CAMBO, 
+                                        size_hint_y=None, height=40, color=row_color) 
+                    place_label = Label(text=expense[3], font_size=15, font_name=FONT_CAMBO, 
+                                       size_hint_y=None, height=40, color=row_color)  
+                    amount_label = Label(text=str(expense[4]), font_size=15, font_name=FONT_CAMBO, 
+                                        size_hint_y=None, height=40, color=row_color) 
+                    reason_label = Label(text=expense[6], font_size=15, font_name=FONT_CAMBO, 
+                                    size_hint_y=None, height=40, size_hint_x=None, width=150, 
+                                    color=row_color,
                                     text_size=(150, None), halign='center', valign='middle')
 
                     self.add_background(date_label)
@@ -70,7 +82,7 @@ class ViewTransactionsLayout(FloatLayout):
 
     def add_background(self, widget):
         with widget.canvas.before:
-            Color(0, 0, 0, 0.86) 
+            Color(0.05, 0.02, 0.15, 0.75)
             widget.rect = Rectangle(size=widget.size, pos=widget.pos)
             widget.bind(size=self._update_rect, pos=self._update_rect)
 

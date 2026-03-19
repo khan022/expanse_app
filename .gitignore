@@ -14,3 +14,5 @@ Expense app/
 temp.*
 expense.db
 credentials.*
+assets/
+config/

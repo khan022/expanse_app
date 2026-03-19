@@ -11,6 +11,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty
 from datetime import datetime
 from database import get_all_balances, get_unique_places, add_expense
+from paths import BG_APP_2, FONT_CAMBO
 
 class AddTransactionScreen(Screen):
     def __init__(self, app, **kwargs):
@@ -32,9 +33,10 @@ class AddTransactionLayout(BoxLayout):
         self.app = app
         self.orientation = 'vertical'
 
+        # Background - teal/purple gradient
         with self.canvas.before:
             Color(1, 1, 1, 1) 
-            self.bg_image = Rectangle(source='../Expense app/possible_bg2.jpg', pos=self.pos, size=self.size)
+            self.bg_image = Rectangle(source=BG_APP_2, pos=self.pos, size=self.size)
 
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -65,13 +67,14 @@ class AddTransactionLayout(BoxLayout):
         ]
 
         for field_name, widget in fields:
+            # Labels - bright mint/cyan for contrast against teal/purple bg
             label = Label(
                 text=f'{field_name}:',
                 font_size=20,
-                font_name='../fonts/Cambo-Regular.ttf',
+                font_name=FONT_CAMBO,
                 size_hint_y=None,
                 height=40,  
-                color=[1, 1, 1, 1]  
+                color=[0.5, 1, 0.85, 1]
             )
             
             self.add_background(label)
@@ -80,9 +83,14 @@ class AddTransactionLayout(BoxLayout):
             grid.add_widget(label)
             grid.add_widget(widget)
 
-        submit_button = Button(text='Add Transaction',font_size=20,
-                                font_name='../fonts/Cambo-Regular.ttf', 
-                                size_hint=(1, 0.1))
+        submit_button = Button(
+            text='Add Transaction', font_size=20,
+            font_name=FONT_CAMBO, 
+            size_hint=(1, 0.1),
+            background_normal='',
+            background_color=(0.1, 0.5, 0.5, 0.85),
+            color=(1, 1, 1, 1)
+        )
         submit_button.bind(on_press=self.add_transaction)
 
         grid.padding = [20, 20, 20, 80]
@@ -102,7 +110,7 @@ class AddTransactionLayout(BoxLayout):
 
     def add_background(self, widget):
         with widget.canvas.before:
-            Color(0, 0, 0, 0.8)
+            Color(0.02, 0.08, 0.12, 0.7)
             widget.rect = Rectangle(size=widget.size, pos=widget.pos)
             widget.bind(size=self.update, pos=self.update)
 
@@ -114,50 +122,54 @@ class AddTransactionLayout(BoxLayout):
         text_input = TextInput(
             multiline=False,
             background_normal='',  
-            background_color=(1, 1, 1, 0.8),  
-            foreground_color=(1, 1, 1, 1),  
+            background_color=(0.05, 0.1, 0.15, 0.6),
+            foreground_color=(0.9, 1, 0.95, 1),
+            hint_text_color=(0.5, 0.7, 0.65, 1),
             halign='center',
             padding_y=(10, 10),
             size_hint_y=None,
             height=40,
-            font_name='../fonts/Cambo-Regular.ttf',
+            font_name=FONT_CAMBO,
         )
-        setattr(self, attr_name, text_input)  # Dynamically set the input widget attribute
+        setattr(self, attr_name, text_input)
         return text_input
 
     def create_reason_input(self):
         self.reason_input = TextInput(
             multiline=True,
             background_normal='',  
-            background_color=(1, 1, 1, 0.8),  
-            foreground_color=(1, 1, 1, 1),  
+            background_color=(0.05, 0.1, 0.15, 0.6),
+            foreground_color=(0.9, 1, 0.95, 1),
+            hint_text_color=(0.5, 0.7, 0.65, 1),
             halign='center',
             padding_y=(10, 10),
             size_hint_y=None,
             height=80,  
-            font_name='../fonts/Cambo-Regular.ttf',
+            font_name=FONT_CAMBO,
         )
         return self.reason_input
 
     def create_date_widget(self):
-        self.date_button = Button(text="Select Date", font_size=20,
-                font_name='../fonts/Cambo-Regular.ttf', on_press=self.show_date_picker, 
-                size_hint_y=None, height=40, background_normal='',  
-                background_color=(1, 1, 1, 0.75),  
-                color=(0, 0, 0, 1))
+        self.date_button = Button(
+            text="Select Date", font_size=20,
+            font_name=FONT_CAMBO, on_press=self.show_date_picker, 
+            size_hint_y=None, height=40, background_normal='',  
+            background_color=(0.15, 0.35, 0.4, 0.8),
+            color=(0.85, 1, 0.95, 1)
+        )
         return self.date_button
 
     def create_place_spinner(self):
         self.place_spinner = Spinner(
             text="Select Place",
             font_size=20,
-            font_name='../fonts/Cambo-Regular.ttf',
+            font_name=FONT_CAMBO,
             values=get_unique_places() + ["Add New Place"],
             size_hint=(1, None),
             height=40,
             background_normal='',  
-            background_color=(1, 1, 1, 0.75),  
-            color=(0, 0, 0, 1)
+            background_color=(0.15, 0.35, 0.4, 0.8),
+            color=(0.85, 1, 0.95, 1)
         )
         self.place_spinner.bind(text=self.on_place_selected)
         return self.place_spinner
@@ -166,13 +178,13 @@ class AddTransactionLayout(BoxLayout):
         self.balance_spinner = Spinner(
             text='Select Balance',
             font_size=20,
-            font_name='../fonts/Cambo-Regular.ttf',
+            font_name=FONT_CAMBO,
             values=[str(bal[1]) for bal in get_all_balances()],  
             size_hint=(1, None),
             height=40,
             background_normal='',  
-            background_color=(1, 1, 1, 0.75), 
-            color=(0, 0, 0, 1)  
+            background_color=(0.15, 0.35, 0.4, 0.8),
+            color=(0.85, 1, 0.95, 1)
         )
         return self.balance_spinner
 

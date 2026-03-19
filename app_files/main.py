@@ -3,8 +3,8 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from database import initialize_database, add_expense, get_all_balances, get_unique_places, get_total_balance, get_last_ten_expenses
 from layout import MainLayout
 from view_transactions import ViewTransactionsLayout
-from add_transaction import AddTransactionScreen  # Import the AddTransactionScreen
-from login import LoginScreen  # Import the LoginScreen
+from add_transaction import AddTransactionScreen
+from login import LoginScreen
 
 class ExpenseApp(App):
     def build(self):
@@ -16,7 +16,7 @@ class ExpenseApp(App):
 
         # Add Login Screen
         self.login_screen = LoginScreen(app=self)
-        self.login_screen.name = 'login'  # Set the name for the LoginScreen
+        self.login_screen.name = 'login'
         self.screen_manager.add_widget(self.login_screen)
 
         # Add Main Layout
@@ -33,7 +33,7 @@ class ExpenseApp(App):
 
         # Add Add Transaction Screen
         self.add_transaction_screen = AddTransactionScreen(app=self)
-        self.add_transaction_screen.name = "add_transaction"  # Set the screen name
+        self.add_transaction_screen.name = "add_transaction"
         self.screen_manager.add_widget(self.add_transaction_screen)
 
         return self.screen_manager
@@ -59,11 +59,11 @@ class ExpenseApp(App):
         return get_last_ten_expenses()
     
     def get_unique_places(self):
-        """ Retrieve the last ten expenses from the database. """
+        """ Retrieve unique places from the database. """
         return get_unique_places()
     
     def logout(self, instance):
-        self.app.screen_manager.current = 'login'  # Use 'login' if that is the name of the LoginScreen
+        self.app.screen_manager.current = 'login'
 
 
 if __name__ == '__main__':

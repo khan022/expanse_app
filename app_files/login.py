@@ -7,6 +7,7 @@ from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
 from kivy.uix.popup import Popup
 from kivy.graphics import Color, Rectangle
+from paths import CREDENTIALS_FILE, BG_LOGIN, FONT_CAMBO, CONFIG_DIR
 
 class LoginScreen(Screen):
     def __init__(self, app, **kwargs):
@@ -21,17 +22,16 @@ class LoginLayout(BoxLayout):
         self.app = app
         self.orientation = 'vertical'
 
-        # Background setup
+        # Background setup - login_background.png (purple/pink/blue gradient)
         with self.canvas.before:
-            Color(1, 1, 1, 1)  # White background
-            self.bg_image = Rectangle(source='../Expense app/possible_bg2.jpg', size=self.size)
+            Color(1, 1, 1, 1)
+            self.bg_image = Rectangle(source=BG_LOGIN, size=self.size)
 
         self.bind(size=self._update_rect, pos=self._update_rect)
 
         self.add_widgets()
 
     def _update_rect(self, *args):
-        # Update background rectangle to fit the layout
         self.bg_image.pos = self.pos
         self.bg_image.size = self.size
 
@@ -59,41 +59,37 @@ class LoginLayout(BoxLayout):
             spacing=20
         )
 
-        # Email Label with semi-transparent background
+        # Email Label - bright cyan for contrast against purple/pink bg
         email_label = Label(
             text='Email:', 
             font_size=20, 
-            font_name='../fonts/Cambo-Regular.ttf', 
-            color=(1, 1, 1, 1),
+            font_name=FONT_CAMBO, 
+            color=(0.4, 1, 1, 1),
             size_hint_y=None,
             height=50,
             padding=(10, 10),
         )
-        # Semi-transparent background for email label
         with email_label.canvas.before:
-            Color(0, 0, 0, 0.5)  # Semi-transparent black
+            Color(0, 0, 0, 0.5)
             self.bg_email = Rectangle(pos=email_label.pos, size=email_label.size)
 
-        # Bind position and size of rectangle to label's position and size
         email_label.bind(pos=lambda instance, value: setattr(self.bg_email, 'pos', value))
         email_label.bind(size=lambda instance, value: setattr(self.bg_email, 'size', value))
 
-        # Password Label with semi-transparent background
+        # Password Label
         password_label = Label(
             text='Password:', 
             font_size=20, 
-            font_name='../fonts/Cambo-Regular.ttf', 
-            color=(1, 1, 1, 1),
+            font_name=FONT_CAMBO, 
+            color=(0.4, 1, 1, 1),
             size_hint_y=None,
             height=50,
             padding=(10, 10),
         )
-        # Semi-transparent background for password label
         with password_label.canvas.before:
-            Color(0, 0, 0, 0.5)  # Semi-transparent black
+            Color(0, 0, 0, 0.5)
             self.bg_password = Rectangle(pos=password_label.pos, size=password_label.size)
 
-        # Bind position and size of rectangle to label's position and size
         password_label.bind(pos=lambda instance, value: setattr(self.bg_password, 'pos', value))
         password_label.bind(size=lambda instance, value: setattr(self.bg_password, 'size', value))
 
@@ -111,13 +107,14 @@ class LoginLayout(BoxLayout):
             hint_text="Enter Email",
             multiline=False,
             background_normal='',  
-            background_color=(1, 1, 1, 0.8),  
-            foreground_color=(0, 0, 0, 1),
+            background_color=(0, 0, 0, 0.4),  
+            foreground_color=(1, 1, 1, 1),
+            hint_text_color=(0.7, 0.7, 0.7, 1),
             halign='center',
             size_hint_y=None,
             height=50,
-            font_name='../fonts/Cambo-Regular.ttf',
-            padding_y=(12, 12)  # For better vertical alignment
+            font_name=FONT_CAMBO,
+            padding_y=(12, 12)
         )
 
         # Password field
@@ -125,20 +122,20 @@ class LoginLayout(BoxLayout):
             hint_text="Enter Password",
             multiline=False,
             background_normal='',  
-            background_color=(1, 1, 1, 0.8),  
-            foreground_color=(0, 0, 0, 1),
+            background_color=(0, 0, 0, 0.4),  
+            foreground_color=(1, 1, 1, 1),
+            hint_text_color=(0.7, 0.7, 0.7, 1),
             halign='center',
             password=True,  
             size_hint_y=None,
             height=50,
-            font_name='../fonts/Cambo-Regular.ttf',
+            font_name=FONT_CAMBO,
             padding_y=(12, 12)
         )
 
         input_container.add_widget(self.email_input)
         input_container.add_widget(self.password_input)
 
-        # Add label and input containers to field container
         field_container.add_widget(label_container)
         field_container.add_widget(input_container)
 
@@ -150,39 +147,37 @@ class LoginLayout(BoxLayout):
             height=50
         )
 
-        # Login button
+        # Login button - soft blue-green to complement purple bg
         login_button = Button(
             text='Login', 
             font_size=20, 
-            font_name='../fonts/Cambo-Regular.ttf', 
-            background_color=(0.2, 0.6, 1, 1),
+            font_name=FONT_CAMBO, 
+            background_color=(0.1, 0.6, 0.8, 0.9),
             color=(1, 1, 1, 1),
             size_hint=(1, None),
             height=50,
-            background_normal='',  # Remove default background
-            background_down=''  # Remove click background
+            background_normal='',
+            background_down=''
         )
         login_button.bind(on_press=self.login)
 
-        # Signup button
+        # Signup button - warm pink to match bg gradient
         signup_button = Button(
             text='Sign Up', 
             font_size=20, 
-            font_name='../fonts/Cambo-Regular.ttf', 
-            background_color=(0.8, 0.2, 0.2, 1),
+            font_name=FONT_CAMBO, 
+            background_color=(0.7, 0.15, 0.4, 0.9),
             color=(1, 1, 1, 1),
             size_hint=(1, None),
             height=50,
-            background_normal='',  # Remove default background
+            background_normal='',
             background_down=''
         )
         signup_button.bind(on_press=self.sign_up)
 
-        # Add buttons to button container
         button_container.add_widget(login_button)
         button_container.add_widget(signup_button)
 
-        # Add field container and button container to the main layout
         layout_container.add_widget(field_container)
         layout_container.add_widget(button_container)
 
@@ -199,9 +194,8 @@ class LoginLayout(BoxLayout):
             self.show_popup("Login Failed", "Invalid email or password. Please try again.")
 
     def validate_credentials(self, email, password):
-        credentials_file = os.path.join('../config', 'credentials.json')
-        if os.path.exists(credentials_file):
-            with open(credentials_file, 'r') as f:
+        if os.path.exists(CREDENTIALS_FILE):
+            with open(CREDENTIALS_FILE, 'r') as f:
                 credentials = json.load(f)
                 stored_email = credentials.get('email')
                 stored_password = credentials.get('password')
@@ -213,8 +207,8 @@ class LoginLayout(BoxLayout):
         password = self.password_input.text.strip()
 
         if email and password:
-            credentials_file = os.path.join('../config', 'credentials.json')
-            with open(credentials_file, 'w') as f:
+            os.makedirs(CONFIG_DIR, exist_ok=True)
+            with open(CREDENTIALS_FILE, 'w') as f:
                 json.dump({'email': email, 'password': password}, f)
             self.show_popup("Sign Up Successful", "You can now log in with your credentials.")
             self.clear_fields()
@@ -222,7 +216,6 @@ class LoginLayout(BoxLayout):
             self.show_popup("Sign Up Failed", "Please enter a valid email and password.")
 
     def clear_fields(self):
-        # Clear email and password fields
         self.email_input.text = ''
         self.password_input.text = ''
 
@@ -231,8 +224,8 @@ class LoginLayout(BoxLayout):
         popup_label = Label(text=message)
         dismiss_button = Button(
             text='Dismiss', 
-            size_hint=(0.5, 0.2),  # Adjust the width
-            pos_hint={'center_x': 0.5}  # Center the button horizontally
+            size_hint=(0.5, 0.2),
+            pos_hint={'center_x': 0.5}
         )
 
         popup_layout.add_widget(popup_label)
@@ -241,4 +234,3 @@ class LoginLayout(BoxLayout):
         popup = Popup(title=title, content=popup_layout, size_hint=(0.6, 0.4))
         dismiss_button.bind(on_press=popup.dismiss)
         popup.open()
-

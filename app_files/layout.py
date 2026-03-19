@@ -9,7 +9,9 @@ from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
-from add_transaction import AddTransactionScreen 
+from add_transaction import AddTransactionScreen
+from paths import (BG_APP_1, FONT_GARAMOND_EXTRABOLD, FONT_GARAMOND_ITALIC,
+                   FONT_DANCING, FONT_CAMBO)
 
 class MainLayout(FloatLayout):
     def __init__(self, app, **kwargs):
@@ -19,23 +21,35 @@ class MainLayout(FloatLayout):
 
         Window.size = (600, 800)
 
+        # Background - dark blue/purple gradient
         with self.canvas.before:
-            self.bg_image = Image(source='../Expense app/possible_bg2.jpg', allow_stretch=True, keep_ratio=False)
+            self.bg_image = Image(source=BG_APP_1, allow_stretch=True, keep_ratio=False)
             self.add_widget(self.bg_image)
 
         self.top_layout = BoxLayout(size_hint=(1, 0.2), pos_hint={'top': 1}, spacing=10, padding=20)
 
-        self.view_transactions_btn = Button(text='View all transactions', font_size=25, 
-                                            font_name="../fonts/EBGaramond-ExtraBold.ttf", 
-                                            size_hint_y=0.8, bold=True, background_color=[0, 0, 0, 0.6], 
-                                            padding=10)
+        # Buttons - semi-transparent with bright text
+        self.view_transactions_btn = Button(
+            text='View all transactions', font_size=25, 
+            font_name=FONT_GARAMOND_EXTRABOLD, 
+            size_hint_y=0.8, bold=True,
+            background_normal='',
+            background_color=[0.1, 0.1, 0.3, 0.7],
+            color=(0.6, 0.9, 1, 1),
+            padding=10
+        )
         self.view_transactions_btn.bind(on_press=self.view_transactions)
         self.top_layout.add_widget(self.view_transactions_btn)
 
-        self.add_transactions_btn = Button(text='Add Transactions', font_size=25, 
-                                           font_name="../fonts/EBGaramond-ExtraBold.ttf", 
-                                           size_hint_y=0.8, bold=True, background_color=[0, 0, 0, 0.6], 
-                                           padding=10)
+        self.add_transactions_btn = Button(
+            text='Add Transactions', font_size=25, 
+            font_name=FONT_GARAMOND_EXTRABOLD, 
+            size_hint_y=0.8, bold=True,
+            background_normal='',
+            background_color=[0.1, 0.1, 0.3, 0.7],
+            color=(0.6, 0.9, 1, 1),
+            padding=10
+        )
         self.add_transactions_btn.bind(on_press=self.add_transactions)
         self.top_layout.add_widget(self.add_transactions_btn)
 
@@ -45,12 +59,13 @@ class MainLayout(FloatLayout):
 
         header_layout = GridLayout(cols=2, size_hint_y=None, height=50, padding=[10, 10], spacing=10)
 
+        # Headers - bright cyan/teal for contrast against dark blue bg
         header_place = Label(text='Place', bold=True, font_size=30, 
-                            font_name = '../fonts/DancingScript-Regular.ttf', 
-                            size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                            font_name=FONT_DANCING, 
+                            size_hint_y=None, height=50, color=[0.3, 1, 0.9, 1])
         header_balance = Label(text='Balance', bold=True, font_size=30, 
-                               font_name = '../fonts/DancingScript-Regular.ttf', 
-                               size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                               font_name=FONT_DANCING, 
+                               size_hint_y=None, height=50, color=[0.3, 1, 0.9, 1])
 
         self.add_background(header_place)
         self.add_background(header_balance)
@@ -74,20 +89,22 @@ class MainLayout(FloatLayout):
                 balance = balance_data[1]  
 
                 if place == 'Total':
+                    # Total row - golden/yellow highlight
                     place_label = Label(text=place, font_size=30, 
-                                        font_name ='../fonts/EBGaramond-Italic-VariableFont_wght.ttf', 
-                                        size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                                        font_name=FONT_GARAMOND_ITALIC, 
+                                        size_hint_y=None, height=50, color=[1, 0.85, 0.3, 1])
                     balance_label = Label(text=str(balance), font_size=28, 
-                                        font_name ='../fonts/EBGaramond-Italic-VariableFont_wght.ttf', 
-                                        size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                                        font_name=FONT_GARAMOND_ITALIC, 
+                                        size_hint_y=None, height=50, color=[1, 0.85, 0.3, 1])
 
                 else:
+                    # Regular rows - light blue/white
                     place_label = Label(text=place, font_size=28, 
-                                        font_name ='../fonts/Cambo-Regular.ttf', 
-                                        size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                                        font_name=FONT_CAMBO, 
+                                        size_hint_y=None, height=50, color=[0.85, 0.92, 1, 1])
                     balance_label = Label(text=str(balance), font_size=28, 
-                                        font_name ='../fonts/Cambo-Regular.ttf', 
-                                        size_hint_y=None, height=50, color=[1, 1, 1, 1])
+                                        font_name=FONT_CAMBO, 
+                                        size_hint_y=None, height=50, color=[0.85, 0.92, 1, 1])
 
                 self.add_background(place_label)
                 self.add_background(balance_label)
@@ -100,22 +117,22 @@ class MainLayout(FloatLayout):
 
         self.add_widget(layout)
 
-        # Logout button at the bottom center
+        # Logout button
         logout_button = Button(
-                            text='Logout',
-                            size_hint=(0.3, 0.05), 
-                            pos_hint={'center_x': 0.5, 'y': 0},
-                            background_normal='',  # Ensures no default background is used
-                            background_color=(0.7, 0, 0, 0.8),  # Semi-transparent black (R, G, B, alpha)
-                            color=(1, 1, 1, 1)  # White text color (R, G, B, alpha)
-                        )
+            text='Logout',
+            size_hint=(0.3, 0.05), 
+            pos_hint={'center_x': 0.5, 'y': 0},
+            background_normal='',
+            background_color=(0.7, 0.1, 0.15, 0.85),
+            color=(1, 1, 1, 1)
+        )
         logout_button.bind(on_press=self.logout)
         self.add_widget(logout_button)
 
     def add_background(self, widget):
         """ Add a semi-transparent background to the widget. """
         with widget.canvas.before:
-            Color(0, 0, 0, 0.865) 
+            Color(0.05, 0.02, 0.15, 0.75)
             widget.rect = Rectangle(size=widget.size, pos=widget.pos)
             widget.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -132,4 +149,4 @@ class MainLayout(FloatLayout):
         self.app.screen_manager.current = 'add_transaction'
 
     def logout(self, instance):
-        self.app.root.current = 'login'  # Navigate back to the login screen
+        self.app.root.current = 'login'
